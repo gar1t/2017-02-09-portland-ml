@@ -245,3 +245,15 @@ def checkpoint_model():
     saver = tf.train.Saver()
     saver.save(sess, FLAGS.rundir + "/model/export")
 ```
+
+---
+
+### Full graph (MNIST regression)
+
+<img src="img/board-mnist-intro.png">
+
+---
+
+### Full graph (MNIST CNN)
+
+<img src="img/board-mnist-expert.png">
