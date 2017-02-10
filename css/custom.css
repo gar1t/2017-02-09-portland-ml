@@ -1,3 +1,7 @@
+.reveal {
+    color: #b6caca;
+}
+
 .reveal section img {
     box-shadow: none;
     border: none;
@@ -16,6 +20,7 @@
 
 .reveal small {
     vertical-align: inherit;
+    font-size: 0.8em;
 }
 
 .reveal pre code {
@@ -26,15 +31,15 @@
 }
 
 .compact-code + pre {
-    font-size: 0.95rem !important;
+    font-size: 1.1rem !important;
 }
 
 .compact-code-2 + pre {
-    font-size: 0.9rem !important;
+    font-size: 1rem !important;
 }
 
 .compact-code-3 + pre {
-    font-size: 0.85rem !important;
+    font-size: 0.9rem !important;
 }
 
 .compact-code-4 + pre {

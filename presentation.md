@@ -16,6 +16,20 @@ http://playground.tensorflow.org
 
 ---
 
+## Code considered instructive
+
+---
+
+https://gar1t.github.io/2017-02-09-portland-ml
+
+https://git.io/vDg9c
+
+---
+
+## TensorFlow = graphs
+
+---
+
 ### Graph operations
 
 ``` python
@@ -35,6 +49,8 @@ http://playground.tensorflow.org
 ### Graph operations
 
 ``` python
+> sess.graph == tf.get_default_graph()
+True
 > sess.graph.get_operations()
 [<tf.Operation 'Const' type=Const>,
  <tf.Operation 'Const_1' type=Const>,
@@ -43,7 +59,7 @@ http://playground.tensorflow.org
 
 ---
 
-### Graph operations
+### Graph operations <small>(TensorBoard)</small>
 
 <img src="img/board-const.png" class="border">
 
@@ -76,7 +92,7 @@ http://playground.tensorflow.org
 
 ---
 
-### Placeholders
+### Placeholders <small>(TensorBoard)</small>
 
 <img src="img/board-placeholder.png" class="border">
 
@@ -116,42 +132,69 @@ http://playground.tensorflow.org
 
 ---
 
-### Variables
+### Variables <small>(TensorBoard)</small>
 
 <img src="img/board-variables.png" class="border" height="500">
 
 ---
 
-### Typical training script
+### Operations <small>(matrix mult)</small>
 
-<div class="compact-code-4"></div>
+``` python
+> tf.reset_default_graph()
+>
+> x = tf.Variable([[2,1]])
+> y = tf.Variable([[1],[2]])
+> z = tf.matmul(x, y)
+>
+> sess = tf.Session()
+> sess.run(tf.global_variables_initializer())
+> sess.run(z)
+array([[4]], dtype=int32)
+```
+
+---
+
+### Operations <small>(TensorBoard)</small>
+
+<img src="img/board-matmul.png" class="border">
+
+---
+
+### Graphs = models and their operations
+
+---
+
+## Machine learning
+
+---
+
+### Training script
 
 ``` python
 def train():
-    for step in training_steps():
-        batch = next_batch()
-        sess.run(train, batch)
+    for step in range(training_steps):
+        batch = data.next_batch()
+        sess.run(train_op, batch)
         maybe_log_accuracy(step, batch)
-        maybe_checkpoint_model(step)
+        maybe_save_model()
 
 if __name__ == "__main__":
     init_flags()
-    init_model()
+    init_data()
     init_train()
-    init_accuracy()
-    init_summaries()
-    init_session()
     train()
 ```
 
 ---
 
-### Init flags
+### Flags
 
 ``` python
 def init_flags():
     global FLAGS
     parser = argparse.ArgumentParser()
+    parser.add_argument("--datadir", default="./data")
     parser.add_argument("--rundir", default="./last-run")
     parser.add_argument("--epochs", type=int, default=100)
     FLAGS, _ = parser.parse_known_args()
@@ -159,7 +202,46 @@ def init_flags():
 
 ---
 
-### Model (softmax regression)
+## Function defined globals
+
+``` python
+def init_foo():
+    global foo
+    foo = "hello"
+```
+
+<ul>
+<li class="fragment">TensorFlow encourages global-like state
+<li class="fragment">Focused functions separate concerns
+<li class="fragment">Manage state without adding noise
+</ul>
+
+---
+
+### Data
+
+``` python
+def init_data():
+    global data
+    data = load_data(FLAGS.datadir)
+```
+
+---
+
+### Train
+
+``` python
+def init_train():
+    init_model()
+    init_train_op()
+    init_accuracy_op()
+    init_summaries()
+    init_session()
+```
+
+---
+
+### Model <small>(softmax regression)</small>
 
 ``` python
 def init_model():
@@ -173,29 +255,29 @@ def init_model():
 
 ---
 
-### Train op (gradient descent)
+### Train op <small>(gradient descent)</small>
 
 <div class="compact-code"></div>
 
 ``` python
-def init_train():
-    global y_, loss, train
+def init_train_op():
+    global y_, loss, train_op
     y_ = tf.placeholder(tf.float32, [None, 10])
     loss = tf.reduce_mean(
              -tf.reduce_sum(
                y_ * tf.log(y),
                reduction_indices=[1]))
-    train = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
+    train_op = tf.train.GradientDescentOptimizer(0.5).minimize(loss)
 ```
 
 ---
 
 ### Accuracy op
 
-<div class="compact-code"></div>
+<div class="compact-code-2"></div>
 
 ``` python
-def init_accuracy():
+def init_accuracy_op():
     global accuracy
     correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
     accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
@@ -216,7 +298,7 @@ def init_summaries():
 
 ---
 
-### Initializing the session
+### Session
 
 ``` python
 def init_session():
@@ -229,31 +311,88 @@ def init_session():
 
 ### Logging accuracy
 
+<div class="compact-code"></div>
+
 ``` python
 def log_accuracy(step, batch):
-    accuracy_out, summary_out = sess.run(accuracy, batch)
-    writer.add_summary(summary_out, step)
-    print "Step %i: accuracy=%f" % accuracy_out
+    accuracy_val, summary = sess.run([accuracy, summaries], batch)
+    writer.add_summary(summary, step)
+    print "Step %i: accuracy=%f" % accuracy_val
 ```
 
 ---
 
-### Checkpointing
+### Saving a model
 
 ``` python
-def checkpoint_model():
+def save_model():
     saver = tf.train.Saver()
     saver.save(sess, FLAGS.rundir + "/model/export")
 ```
 
 ---
 
-### Full graph (MNIST regression)
+### Full graph <small>(MNIST regression)</small>
 
 <img src="img/board-mnist-intro.png">
 
 ---
 
-### Full graph (MNIST CNN)
+### Full graph <small>(MNIST CNN)</small>
 
 <img src="img/board-mnist-expert.png">
+
+---
+
+### Training script <small>(review)</small>
+
+``` python
+def train():
+    for step in range(training_steps):
+        batch = data.next_batch()
+        sess.run(train_op, batch)
+        maybe_log_accuracy(step, batch)
+        maybe_save_model()
+
+if __name__ == "__main__":
+    init_flags()
+    init_data()
+    init_train()
+    train()
+```
+
+---
+
+# Demo
+
+https://guild.ai
+
+---
+
+## Full TensorFlow Lifecycle
+
+<ul>
+<li class="fragment">Get code
+<li class="fragment">Prepare model for training
+<li class="fragment">Train model
+<li class="fragment">Compare results
+<li class="fragment">Serve model
+</ul>
+
+---
+
+## Deep learning with TensorFlow
+
+<ul>
+<li class="fragment">TF is a <strong>low level</strong> library for machine learners
+<li class="fragment"><strong>Frameworks</strong> growing in popularity and support <small>(Keras, TFLearn, TFSlim)</small>
+<li class="fragment"><strong>Graphs</strong> central <small>(define model &amp; ops, run, export, serve)</small>
+</ul>
+
+---
+
+## Links
+
+- http://tensorflow.org
+- http://guild.ai
+- http://tensorflowpatterns.org
