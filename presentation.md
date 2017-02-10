@@ -20,7 +20,7 @@ http://playground.tensorflow.org
 
 ---
 
-https://gar1t.github.io/2017-02-09-portland-ml
+### Follow along
 
 https://git.io/vDg9c
 
