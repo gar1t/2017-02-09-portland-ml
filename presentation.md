@@ -138,7 +138,7 @@ True
 
 ---
 
-### Operations <small>(matrix mult)</small>
+### Advanced Operations <small>(matrix mult)</small>
 
 ``` python
 > tf.reset_default_graph()
@@ -155,7 +155,7 @@ array([[4]], dtype=int32)
 
 ---
 
-### Operations <small>(TensorBoard)</small>
+### Advanced Operations <small>(TensorBoard)</small>
 
 <img src="img/board-matmul.png" class="border">
 
@@ -386,7 +386,8 @@ https://guild.ai
 <ul>
 <li class="fragment">TF is a <strong>low level</strong> library for machine learners
 <li class="fragment"><strong>Frameworks</strong> growing in popularity and support <small>(Keras, TFLearn, TFSlim)</small>
-<li class="fragment"><strong>Graphs</strong> central <small>(define model &amp; ops, run, export, serve)</small>
+<li class="fragment"><strong>Graphs</strong> are central <small>(define model &amp; ops, run, export, serve)</small>
+<li class="fragment">Good <strong>conventions</strong> (patterns) essential for success
 </ul>
 
 ---
